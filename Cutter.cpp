@@ -7,7 +7,9 @@
 
 #include "Cutter.h"
 #include <QFileInfo>
+#if (QT_VERSION < QT_VERSION_CHECK(6,0,0))
 #include <QTextCodec>
+#endif
 #include <QTextStream>
 #include <QDir>
 #include <QFile>
@@ -35,12 +37,37 @@ QString Cutter::readAll(const QString& fileName, const QString& type)
   if (type == "auto") {
     stream.autoDetectUnicode();
   } else {
+#if (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
+    QString subcode = type.toLocal8Bit();
+    if (subcode == QString("UTF-8")) {
+      stream.setEncoding(QStringConverter::Utf8);
+    } else if (subcode == QString("UTF-16")) {
+      stream.setEncoding(QStringConverter::Utf16);
+    } else if (subcode == QString("UTF-16BE")) {
+      stream.setEncoding(QStringConverter::Utf16BE);
+    } else if (subcode == QString("UTF-16LE")) {
+      stream.setEncoding(QStringConverter::Utf16LE);
+    } else if (subcode == QString("UTF-32")) {
+      stream.setEncoding(QStringConverter::Utf32);
+    } else if (subcode == QString("UTF-32BE")) {
+      stream.setEncoding(QStringConverter::Utf32BE);
+    } else if (subcode == QString("UTF-32LE")) {
+      stream.setEncoding(QStringConverter::Utf32LE);
+    } else if (subcode == QString("UTF-Latin1")) {
+      stream.setEncoding(QStringConverter::Latin1);
+    } else if (subcode == QString("UTF-System")) {
+      stream.setEncoding(QStringConverter::System);
+    } else {
+      stream.setEncoding(QStringConverter::Utf8);
+    }
+#else
     QTextCodec* codec = QTextCodec::codecForName(type.toLocal8Bit());
     if (codec != nullptr) {
       stream.setCodec(codec);
     } else {
       stream.setCodec(type.toUtf8());
     }
+#endif
   }
   QString input = stream.readAll();
   file.close();
