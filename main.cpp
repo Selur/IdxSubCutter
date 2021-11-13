@@ -29,7 +29,11 @@ int main(int argc, char *argv[])
     std::cerr << "found no file: " << qPrintable(sub) << std::endl;
     return -1;
   }
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
   QStringList cutList = QString(argv[2]).split(",", Qt::SkipEmptyParts);
+#else
+  QStringList cutList = QString(argv[2]).split(",", QString::SkipEmptyParts);
+#endif
   if (cutList.count() < 1) {
     std::cerr << "cut list seems to be empty!" << std::endl;
     return -1;
